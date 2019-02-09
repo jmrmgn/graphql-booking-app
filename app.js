@@ -17,10 +17,7 @@ app.use('/graphql', graphqlHttp({
 }));
 
 mongoose.connect(
-   'mongodb://localhost/graphql-booking-app-dev',
-   {
-      useNewUrlParser: true
-   }
+   'mongodb://localhost/graphql-booking-app-dev', { useNewUrlParser: true }
 )
 .then(() => {
    console.log('Connected to database');
