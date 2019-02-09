@@ -20,12 +20,14 @@ app.use('/graphql', graphqlHttp({
          description: String!
          price: Float!
          date: String!
+         creator: User!
       }
 
       type User {
          _id: ID!
          email: String!
          password: String
+         createdEvents: [Event!]
       }
 
       input EventInput {
@@ -57,7 +59,17 @@ app.use('/graphql', graphqlHttp({
    rootValue: {
       events: async () => {
          try {
-            const events = await Event.find();
+            const events = await Event
+               .find()
+               .populate({
+                  path: 'creator',
+                  select: 'email',
+                  populate: {
+                     path: 'createdEvents',
+                     select: 'title description price date'
+                  }
+               })
+               .exec();
             return events;
          }
          catch (error) {
