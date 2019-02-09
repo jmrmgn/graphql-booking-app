@@ -2,6 +2,9 @@ const bcrypt = require('bcryptjs');
 
 const Event = require('../../models/Event');
 const User = require('../../models/User');
+const Booking = require('../../models/Booking');
+
+const DUMMYID = '5c5eb6a56875042ee4ae2233';
 
 module.exports = {
    events: async () => {
@@ -37,14 +40,50 @@ module.exports = {
          console.log(error);
       }
    },
+   bookings: async () => {
+      try {
+         const prePopulate = [
+            {
+               path: 'user',
+               select: 'email',
+            },
+            {
+               path: 'event',
+               select: 'title description date price',
+               populate: {
+                  path: 'creator',
+                  select: 'email'
+               }
+            }
+         ];
+
+         const bookings = await Booking
+            .find()
+            .populate(prePopulate)
+            .exec();
+         return bookings.map(booking => {
+            return {
+               ...booking._doc,
+               createdAt: new Date(booking.createdAt).toISOString(),
+               updatedAt: new Date(booking.updatedAt).toISOString(),
+               event: {
+                  ...booking.event._doc,
+                  date: new Date(booking.event.date).toISOString()
+               }
+            }
+         });
+      }
+      catch (error) {
+         return error;
+      }
+   },
    createEvent: async args => {
       const { title, description, price } = args.eventInput;
-      const dummyID = '5c5eb6a56875042ee4ae2233';
-      const event = new Event({ title, description, price, date: new Date(args.eventInput.date), creator: dummyID });
+      const event = new Event({ title, description, price, date: new Date(args.eventInput.date), creator: DUMMYID });
 
       try {
          await event.save();
-         const user = await User.findById(dummyID);
+         const user = await User.findById(DUMMYID);
 
          if (!user) {
             // No user found
@@ -78,6 +117,48 @@ module.exports = {
             const userData = { email, password: null };
             return userData;
          }
+      }
+      catch (error) {
+         return error;
+      }
+   },
+   bookEvent: async args => {
+      try {
+         const event = await Event.findOne({ _id: args.eventId });
+         const booking = new Booking({
+            user: DUMMYID,
+            event: event
+         });
+
+         const bookingData = await booking.save();
+
+         return {
+            ...bookingData._doc,
+            createdAt: new Date(bookingData.createdAt).toISOString(),
+            updatedAt: new Date(bookingData.updatedAt).toISOString()
+         };
+
+
+      }
+      catch (error) {
+         return error;
+      }
+   },
+   cancelBooking: async args => {
+      try {
+         const booking = await Booking
+            .findById(args.bookingId)
+            .populate({
+               path: 'event',
+               populate: {
+                  path: 'creator',
+                  select: 'email'
+               }
+            });
+         const event = booking.event;
+         await Booking.deleteOne({ _id: args.bookingId});
+         
+         return event;
       }
       catch (error) {
          return error;
