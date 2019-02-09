@@ -3,10 +3,12 @@ const { dateToString } = require('../../helpers/date');
 const Event = require('../../models/Event');
 const Booking = require('../../models/Booking');
 
-const DUMMYID = '5c5ed715126ba91b0c79f397';
-
 module.exports = {
-   bookings: async () => {
+   bookings: async (args, req) => {
+      if (!req.isAuth) {
+         throw new Error('Unauthenticated');
+      }
+
       try {
          const prePopulate = [
             {
@@ -43,11 +45,15 @@ module.exports = {
          return error;
       }
    },
-   bookEvent: async args => {
+   bookEvent: async (args, req) => {
+      if (!req.isAuth) {
+         throw new Error('Unauthenticated');
+      }
+
       try {
          const event = await Event.findOne({ _id: args.eventId });
          const booking = new Booking({
-            user: DUMMYID,
+            user: req.userId,
             event: event
          });
 
@@ -65,7 +71,12 @@ module.exports = {
          return error;
       }
    },
-   cancelBooking: async args => {
+   cancelBooking: async (args, req) => {
+
+      if (!req.isAuth) {
+         throw new Error('Unauthenticated');
+      }
+      
       try {
          const booking = await Booking
             .findById(args.bookingId)

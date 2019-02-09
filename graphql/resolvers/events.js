@@ -3,8 +3,6 @@ const User = require('../../models/User');
 
 const { dateToString } = require('../../helpers/date');
 
-const DUMMYID = '5c5ed715126ba91b0c79f397';
-
 module.exports = {
    events: async () => {
       try {
@@ -39,13 +37,18 @@ module.exports = {
          console.log(error);
       }
    },
-   createEvent: async args => {
+   createEvent: async (args, req) => {
+      if (!req.isAuth) {
+         console.log(req.isAuth);
+         throw new Error('Unauthenticated');
+      }
+
       const { title, description, price } = args.eventInput;
-      const event = new Event({ title, description, price, date: new Date(args.eventInput.date), creator: DUMMYID });
+      const event = new Event({ title, description, price, date: new Date(args.eventInput.date), creator: req.userId });
 
       try {
          await event.save();
-         const user = await User.findById(DUMMYID);
+         const user = await User.findById(req.userId);
 
          if (!user) {
             // No user found
