@@ -46,15 +46,15 @@ class Auth extends Component {
          }
 
          const res = await axios.post('http://localhost:8000/graphql', reqQuery);
-         
-         const { token } = res.data.data.login;
 
-         if (token) {
-            const { token, userId, tokenExpiration } = res.data.data.login;
-            
-            this.context.login(token, userId, tokenExpiration);
+         if (isLogin) {
+            if (res.data.data.login.token) {
+               const { token, userId, tokenExpiration } = res.data.data.login;
+               
+               this.context.login(token, userId, tokenExpiration);
+            }
          }
-
+         
       }
       catch (error) {  
          console.log(error);

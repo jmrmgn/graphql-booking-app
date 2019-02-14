@@ -28,7 +28,7 @@ module.exports = {
             const newUser = new User({ email, password: hashPw });
             await newUser.save();
 
-            const userData = { email, password: null };
+            const userData = { _id: newUser._id, email, password: null };
             return userData;
          }
       }

@@ -3,7 +3,7 @@ import React from 'react';
 import './Modal.css';
 
 const modal = props => {
-   const { title, onCancel } = props;
+   const { title } = props;
    return (
       <div className="modal">
          <header className="modal__header">
@@ -11,10 +11,6 @@ const modal = props => {
          </header>
          <section className="modal__content">
             {props.children}
-         </section>
-         <section className="modal__actions">
-            <button className="btn" onClick={onCancel}>Cancel</button>
-            <button className="btn">Confirm</button>
          </section>
       </div>
    );
