@@ -30,14 +30,21 @@
    margin: 0 1rem;
 }
 
-.main_navigation__items a {
+.main_navigation__items a,
+.main_navigation__items button {
    text-decoration: none;
    color: #000;
+   font: inherit;
+   border: none;
+   background: transparent;
+   cursor: pointer;
 }
 
 .main_navigation__items a:hover,
 .main_navigation__items a:active,
-.main_navigation__items a.active {
+.main_navigation__items a.active,
+.main_navigation__items button:hover,
+.main_navigation__items button:active {
    color: #f8e264;
    transition: 0.15s ease;
    -webkit-transition: 0.15s ease;

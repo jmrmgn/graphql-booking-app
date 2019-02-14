@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 
 import './Auth.css';
+import AuthContext from '../context/auth-context';
 
 class Auth extends Component {
    state = {
@@ -9,6 +10,8 @@ class Auth extends Component {
       password: '',
       isLogin: true
    };
+
+   static contextType = AuthContext;
 
    toggleHandler = () => this.setState({ isLogin: !this.state.isLogin });
 
@@ -43,7 +46,14 @@ class Auth extends Component {
          }
 
          const res = await axios.post('http://localhost:8000/graphql', reqQuery);
-         console.log(res.data);
+         
+         const { token } = res.data.data.login;
+
+         if (token) {
+            const { token, userId, tokenExpiration } = res.data.data.login;
+            
+            this.context.login(token, userId, tokenExpiration);
+         }
 
       }
       catch (error) {  
