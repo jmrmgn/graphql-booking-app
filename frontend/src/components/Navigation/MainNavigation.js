@@ -8,7 +8,7 @@ const mainNavigation = props => {
    return (
       <AuthContext.Consumer>
          {
-            ({ token }) => {
+            ({ token, logout }) => {
                return (
                   <header className="main-navigation">
                      <div className="main-navigation__logo">
@@ -23,7 +23,7 @@ const mainNavigation = props => {
                                  <React.Fragment>
                                     <li><NavLink to="/bookings">Bookings</NavLink></li>
                                     <li>
-                                       <button>Logout</button>
+                                       <button onClick={logout}>Logout</button>
                                     </li>
                                  </React.Fragment>
                            }

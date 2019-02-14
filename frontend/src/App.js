@@ -16,11 +16,9 @@ class App extends Component {
       userId: null
    };
 
-   login = (token, userId, tokenExpiration) => {
-      this.setState({ token, userId });
-   }
+   login = (token, userId, tokenExpiration) => { this.setState({ token, userId }); }
 
-   logout = () => this.setState({ token: null, userId: null });
+   logout = () => this.setState({ token: null, userId: null })
 
    render() {
       const { token, userId } = this.state;
@@ -34,6 +32,7 @@ class App extends Component {
                      <main className="main-content">
                         <Switch>
                            { token && <Redirect from="/auth" to="/events" /> }
+                           { !token && <Redirect from="/bookings" to="/auth" /> }
                            <Route path="/" component={Home} exact />
                            <Route path="/auth" component={Auth} exact />
                            <Route path="/events" component={Events} exact />
