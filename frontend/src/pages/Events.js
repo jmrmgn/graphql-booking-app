@@ -136,9 +136,35 @@ class Events extends Component {
       });
    };
 
-   onBookEvent = (eventId, e) => {
+   onBookEvent = async e => {
       e.preventDefault();
-      console.log(eventId);
+      const eventId = this.state.selectedEvent._id;
+
+      const reqQuery = {
+         query: `
+            mutation {
+               bookEvent(eventId: "${eventId}") {
+                  event {
+                     title
+                  }
+                  createdAt
+                  updatedAt
+               }
+            }
+         `
+      };
+
+      try {
+         const res = await axios.post('http://localhost:8000/graphql', reqQuery, {
+            headers: { Authorization: "Bearer " + this.context.token }
+         });
+         
+         console.log(res.data);
+      }
+      catch (error) {
+         console.log(error);
+      }
+
    };
 
    render() {
@@ -182,6 +208,8 @@ class Events extends Component {
                         <EventDetail
                            event={selectedEvent}
                            onBookEvent={this.onBookEvent}
+                           token={this.context.token}
+                           onClose={this.onCancelHandler}
                         />
                      </Modal>
                   </React.Fragment>
