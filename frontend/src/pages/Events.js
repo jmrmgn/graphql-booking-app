@@ -9,11 +9,15 @@ import Modal from '../components/Modal/Modal';
 import Backdrop from '../components/Backdrop/Backdrop';
 
 import EventForm from '../components/Events/EventForm';
+import EventList from '../components/Events/EventList';
+import EventDetail from '../components/Events/EventDetail';
 
 class Events extends Component {
    state = {
       creating: false,
+      isLoading: false,
       events: [],
+      selectedEvent: null,
       title: '',
       price: '',
       date: '',
@@ -27,34 +31,41 @@ class Events extends Component {
    static contextType = AuthContext;
 
    async fetchEvents() {
-      const reqQuery = {
-         query: `
-            query {
-               events {
-                  _id
-                  title
-                  description
-                  price
-                  date
-                  creator {
-                    _id
-                    email
+      try {
+         this.setState({ isLoading: true });
+         const reqQuery = {
+            query: `
+               query {
+                  events {
+                     _id
+                     title
+                     description
+                     price
+                     date
+                     creator {
+                        _id
+                     }
                   }
                }
-            }
-         `
-      };
-
-      const res = await axios.post('http://localhost:8000/graphql', reqQuery);
-
-      this.setState({
-         events: res.data.data.events
-      });
+            `
+         };
+   
+         const res = await axios.post('http://localhost:8000/graphql', reqQuery);
+   
+         this.setState({
+            events: res.data.data.events,
+            isLoading: false
+         });
+      }
+      catch (error) {
+         console.log(error);
+         this.setState({ isLoading: false });
+      }
    }
 
    onCreateHandler = () => this.setState({ creating: true });
 
-   onCancelHandler = () => this.setState({ creating: false });
+   onCancelHandler = () => this.setState({ creating: false, selectedEvent: null });
 
    onChange = e => this.setState({ [e.target.name]: e.target.value });
 
@@ -86,11 +97,26 @@ class Events extends Component {
          `
       };
 
-      await axios.post('http://localhost:8000/graphql', reqQuery, {
+      const res = await axios.post('http://localhost:8000/graphql', reqQuery, {
          headers: { Authorization: "Bearer " + token }
       });
 
-      await this.fetchEvents();
+      this.setState(prevState => {
+         const updatedEvents = [...prevState.events];
+         const { _id, title, description, price, date } = res.data.data.createEvent;
+         updatedEvents.push({
+            _id: _id,
+            title: title,
+            description: description,
+            price: price,
+            date: date,
+            creator: {
+               _id: this.context.userId
+            }
+         });
+
+         return { events: updatedEvents };
+      });
 
       this.setState({
          creating: false,
@@ -102,22 +128,27 @@ class Events extends Component {
 
    };
 
-   render() {
-      const { title, price, date, description, creating, events } = this.state;
-      const eventData = { title, price, date, description };
+   onShowDetail = eventId => {
+      this.setState(prevState => {
+         const selectedEvent = prevState.events.find(e => e._id === eventId);
 
-      const eventList = events.map(event => {
-         return (
-            <li key={event._id} className="events__list-item">
-               {event.title}
-            </li>
-         );
-      })
+         return { selectedEvent };
+      });
+   };
+
+   onBookEvent = (eventId, e) => {
+      e.preventDefault();
+      console.log(eventId);
+   };
+
+   render() {
+      const { creating, isLoading, title, price, date, description, events, selectedEvent } = this.state;
+      const eventData = { title, price, date, description };
 
       return (
          <React.Fragment>
             {
-               creating && (
+               ( creating ) && (
                   <React.Fragment>
                      <Backdrop onCancel={this.onCancelHandler} />
                      <Modal
@@ -140,7 +171,30 @@ class Events extends Component {
                      <button className="btn" onClick={this.onCreateHandler}>Create event</button>
                   </div>
             }
-            <ul className="events__list">{eventList}</ul>
+            {
+               selectedEvent &&
+                  <React.Fragment>
+                     <Backdrop onCancel={this.onCancelHandler} />
+                     <Modal
+                        title="Book Event"
+                        onCancel={this.onCancelHandler}
+                     >
+                        <EventDetail
+                           event={selectedEvent}
+                           onBookEvent={this.onBookEvent}
+                        />
+                     </Modal>
+                  </React.Fragment>
+            }
+            {
+               isLoading
+                  ? <span>Loading...</span>
+                  : <EventList
+                     events={events}
+                     authUserId={this.context.userId}
+                     onViewDetail={this.onShowDetail}
+                  />
+            }
             
          </React.Fragment>
       )
