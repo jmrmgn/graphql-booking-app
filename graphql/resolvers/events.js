@@ -58,8 +58,10 @@ module.exports = {
             user.createdEvents.push(event);
             await user.save();
 
-            // PENDING
-            return event;
+            return {
+               ...event._doc,
+               date: dateToString(event.date)
+            };
          }
       }
       catch (error) {

@@ -80,7 +80,6 @@ class Events extends Component {
       }
 
       const { title, price, date, description } = eventData;
-
       const token = this.context.token;
       
       const reqQuery = {
@@ -125,7 +124,7 @@ class Events extends Component {
          date: '',
          description: ''
       });
-
+      
    };
 
    onShowDetail = eventId => {
@@ -217,11 +216,13 @@ class Events extends Component {
             {
                isLoading
                   ? <span>Loading...</span>
-                  : <EventList
-                     events={events}
-                     authUserId={this.context.userId}
-                     onViewDetail={this.onShowDetail}
-                  />
+                  : events.length > 0
+                     ? <EventList
+                        events={events}
+                        authUserId={this.context.userId}
+                        onViewDetail={this.onShowDetail}
+                     />
+                     : <span>No events yet.</span>
             }
             
          </React.Fragment>
