@@ -4,11 +4,14 @@ import axios from 'axios';
 import AuthContext from '../context/auth-context';
 
 import BookingsList from '../components/Bookings/BookingsList';
+import BookingsControls from '../components/Bookings/BookingsControls';
+import BookingsChart from '../components/Bookings/BookingsChart';
 
 class Bookings extends Component {
    state = {
       isLoading: false,
-      bookings: []
+      bookings: [],
+      outputType: 'list'
    };
 
    static contextType = AuthContext;
@@ -27,6 +30,7 @@ class Bookings extends Component {
                      _id
                      event {
                        title
+                       price
                        date
                      }
                      user {
@@ -82,19 +86,41 @@ class Bookings extends Component {
          console.log(error);
       }
    };
+
+   onChangeOutput = outputType => {
+      this.setState({ outputType });
+   };
    
    render() {
-      const { isLoading, bookings } = this.state;
+      const { isLoading, bookings, outputType } = this.state;
+      let content = <span>Loading...</span>;
 
+      if (!isLoading) {
+         if (bookings.length > 0) {
+            content = (
+               <React.Fragment>
+                  <BookingsControls
+                     onChange={this.onChangeOutput}
+                     type={outputType}
+                  />
+                  <div>
+                     {
+                        (outputType === 'list')
+                           ? <BookingsList bookings={bookings} onCancelBooking={this.onCancelBooking} />
+                           : <BookingsChart bookings={bookings} />
+                     }
+                  </div>
+               </React.Fragment>
+            );
+         }
+         else {
+            content = <span>No bookings yet.</span>;
+         }
+      }
+      
       return (
          <div>
-            {
-               isLoading
-                  ? <span>Loading...</span>
-                  : bookings.length > 0
-                     ? <BookingsList bookings={bookings} onCancelBooking={this.onCancelBooking} />
-                     : <span>No bookings yet.</span>
-            }
+            {content}
          </div>
       )
    }

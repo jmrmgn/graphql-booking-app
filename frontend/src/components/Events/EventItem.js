@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import '../../pages/Event.css';
 
@@ -21,6 +22,12 @@ const eventItem = props => {
          </div>
       </li>
    );
+};
+
+eventItem.propTypes = {
+   userId: PropTypes.string,
+   onDetail: PropTypes.func.isRequired,
+   event: PropTypes.object.isRequired
 };
 
 export default eventItem;
