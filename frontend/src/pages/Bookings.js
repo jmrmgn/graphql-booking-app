@@ -57,13 +57,16 @@ class Bookings extends Component {
       try {
          const reqQuery = {
             query: `
-               mutation {
-                  cancelBooking(bookingId: "${bookingId}") {
+               mutation CancelBooking($id: ID!) {
+                  cancelBooking(bookingId: $id) {
                      title
                      description
                   }
                }
-            `
+            `,
+            variables: {
+               id: bookingId
+            }
          };
 
          await axios.post('http://localhost:8000/graphql', reqQuery, {
@@ -88,7 +91,9 @@ class Bookings extends Component {
             {
                isLoading
                   ? <span>Loading...</span>
-                  : <BookingsList bookings={bookings} onCancelBooking={this.onCancelBooking} />
+                  : bookings.length > 0
+                     ? <BookingsList bookings={bookings} onCancelBooking={this.onCancelBooking} />
+                     : <span>No bookings yet.</span>
             }
          </div>
       )

@@ -84,8 +84,8 @@ class Events extends Component {
       
       const reqQuery = {
          query: `
-            mutation {
-               createEvent(eventInput: { title: "${title}", description: "${description}", price: ${price}, date: "${date}" }) {
+            mutation CreateEvent($title: String!, $desc: String!, $price: Float!, $date: String!) {
+               createEvent(eventInput: { title: $title, description: $desc, price: $price, date: $date }) {
                   _id
                   title
                   description
@@ -93,7 +93,8 @@ class Events extends Component {
                   date
                }
             }
-         `
+         `,
+         variables: {title, desc: description, price, date }
       };
 
       const res = await axios.post('http://localhost:8000/graphql', reqQuery, {
@@ -141,8 +142,8 @@ class Events extends Component {
 
       const reqQuery = {
          query: `
-            mutation {
-               bookEvent(eventId: "${eventId}") {
+            mutation BookEvent($id: ID!) {
+               bookEvent(eventId: $id) {
                   event {
                      title
                   }
@@ -150,7 +151,8 @@ class Events extends Component {
                   updatedAt
                }
             }
-         `
+         `,
+         variables: { id: eventId }
       };
 
       try {
