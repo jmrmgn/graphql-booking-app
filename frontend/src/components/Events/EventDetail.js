@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import '../../pages/Event.css';
 
@@ -17,6 +18,13 @@ const eventDetail = props => {
          }
       </form>
    );
+};
+
+eventDetail.propTypes = {
+   event: PropTypes.object.isRequired,
+   onBookEvent: PropTypes.func.isRequired,
+   token: PropTypes.string,
+   onClose: PropTypes.func.isRequired
 };
 
 export default eventDetail;

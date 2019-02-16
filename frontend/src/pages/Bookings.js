@@ -3,6 +3,8 @@ import axios from 'axios';
 
 import AuthContext from '../context/auth-context';
 
+import BookingsList from '../components/Bookings/BookingsList';
+
 class Bookings extends Component {
    state = {
       isLoading: false,
@@ -50,6 +52,33 @@ class Bookings extends Component {
          this.setState({ isLoading: false });
       }
    }
+
+   onCancelBooking = async bookingId => {
+      try {
+         const reqQuery = {
+            query: `
+               mutation {
+                  cancelBooking(bookingId: "${bookingId}") {
+                     title
+                     description
+                  }
+               }
+            `
+         };
+
+         await axios.post('http://localhost:8000/graphql', reqQuery, {
+            headers: { Authorization: "Bearer " + this.context.token }
+         });
+   
+         this.setState(prevState => {
+            const updatedBookings = prevState.bookings.filter(booking => booking._id !== bookingId);
+            return { bookings: updatedBookings };
+         });
+      }
+      catch (error) {
+         console.log(error);
+      }
+   };
    
    render() {
       const { isLoading, bookings } = this.state;
@@ -59,13 +88,7 @@ class Bookings extends Component {
             {
                isLoading
                   ? <span>Loading...</span>
-                  : bookings.map(booking => {
-                     return (
-                        <ul key={booking._id}>
-                           <li>{booking.event.title} - {new Date(booking.event.date).toLocaleString()}</li>
-                        </ul>
-                     )
-                  })
+                  : <BookingsList bookings={bookings} onCancelBooking={this.onCancelBooking} />
             }
          </div>
       )
