@@ -26,7 +26,7 @@ module.exports = {
          ];
 
          const bookings = await Booking
-            .find()
+            .find({ user: req.userId })
             .populate(prePopulate)
             .exec();
          return bookings.map(booking => {

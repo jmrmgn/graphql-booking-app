@@ -154,11 +154,11 @@ class Events extends Component {
       };
 
       try {
-         const res = await axios.post('http://localhost:8000/graphql', reqQuery, {
+         await axios.post('http://localhost:8000/graphql', reqQuery, {
             headers: { Authorization: "Bearer " + this.context.token }
          });
          
-         console.log(res.data);
+         this.onCancelHandler();
       }
       catch (error) {
          console.log(error);
