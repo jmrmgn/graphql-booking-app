@@ -7,8 +7,20 @@ module.exports = {
    // Temporary
    users: async () => {
       try {
-         const users = await User.find();
-         return users;
+         const users = await User
+            .find()
+            .populate({
+               path: 'createdEvents',
+               select: 'title description price date'
+            }).exec();
+         
+         return users.map(user => {
+            return {
+               ...user._doc,
+               password: null,
+               createdEvents: [...user.createdEvents]
+            }
+         });
       }
       catch (error) {
          return error;   
